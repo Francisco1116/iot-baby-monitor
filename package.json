@@ -1,0 +1,27 @@
+{
+  "name": "iot-baby-monitor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "sim": "tsx src/simulator.ts",
+    "hub": "tsx src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongoose": "^9.6.3",
+    "mqtt": "^5.15.1"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^25.9.1",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  }
+}

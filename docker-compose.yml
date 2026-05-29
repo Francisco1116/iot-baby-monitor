@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    container_name: local-mqtt
+    ports:
+      - "1883:1883" # MQTT 預設通訊埠
+      - "9001:9001" # WebSockets 通訊埠 (備用)
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  mongodb:
+    image: mongo:6.0
+    container_name: local-mongo
+    ports:
+      - "27017:27017" # MongoDB 預設通訊埠
