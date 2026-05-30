@@ -1,0 +1,84 @@
+# ==========================================
+# 1. 建立 ConfigMap (存放 MQTT 的設定檔)
+# 這樣就不用像 Docker Compose 那樣依賴本機檔案了
+# ==========================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mqtt-config
+data:
+  mosquitto.conf: |
+    listener 1883 0.0.0.0
+    allow_anonymous true
+---
+# ==========================================
+# 2. MQTT Broker (Deployment 負責跑機器, Service 負責網路)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mqtt
+  template:
+    metadata:
+      labels:
+        app: mqtt
+    spec:
+      containers:
+      - name: mqtt
+        image: eclipse-mosquitto:2.0
+        ports:
+        - containerPort: 1883
+        volumeMounts:
+        - name: config-volume
+          mountPath: /mosquitto/config/mosquitto.conf
+          subPath: mosquitto.conf
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mqtt-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mqtt-svc   # 這非常重要，這是 K8s 內部的 DNS 名稱
+spec:
+  selector:
+    app: mqtt
+  ports:
+  - port: 1883
+---
+# ==========================================
+# 3. MongoDB (Deployment & Service)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:6.0
+        ports:
+        - containerPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc  # 這是資料庫的 DNS 名稱
+spec:
+  selector:
+    app: mongo
+  ports:
+  - port: 27017

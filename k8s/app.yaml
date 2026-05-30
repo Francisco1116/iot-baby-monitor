@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hub-deployment
+spec:
+  replicas: 1 # 高擴展性體驗：如果未來流量變大，這裡改成 5，K8s 瞬間就會開出 5 台機器分擔流量
+  selector:
+    matchLabels:
+      app: hub
+  template:
+    metadata:
+      labels:
+        app: hub
+    spec:
+      containers:
+      - name: hub
+        image: baby-monitor-hub:v4
+        imagePullPolicy: IfNotPresent 
+        env:
+        - name: MONGO_URI
+          value: "mongodb://mongo-svc:27017/baby-monitor"
+        - name: MQTT_URI
+          value: "mqtt://mqtt-svc:1883"

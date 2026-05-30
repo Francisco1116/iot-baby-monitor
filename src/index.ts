@@ -13,18 +13,20 @@ const vitalSchema = new mongoose.Schema({
 
 // 建立可操作資料庫的模型 (Model)
 const VitalAlert = mongoose.model('VitalAlert', vitalSchema);
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/baby-monitor';
+const mqttUri = process.env.MQTT_URI || 'mqtt://localhost:1883';
 
 const startHub = async () => {
   try {
     // --- 2. 連線到我們剛剛用 Docker 跑起來的 MongoDB ---
-    await mongoose.connect('mongodb://localhost:27017/baby-monitor');
-    console.log('✅ MongoDB connected successfully.');
+    await mongoose.connect(mongoUri + '?family=4');
+    console.log(`✅ MongoDB connected successfully to ${mongoUri}`);
 
     // --- 3. 連線到 MQTT Broker ---
-    const client = mqtt.connect('mqtt://localhost:1883');
+    const client = mqtt.connect(mqttUri);
 
     client.on('connect', () => {
-      console.log('✅ Backend hub connected to MQTT Broker.');
+      console.log(`✅ Backend hub connected to MQTT Broker at ${mqttUri}`);
 
       // 訂閱與模擬器相同的「主題」
       client.subscribe('device/baby/vitals', (err) => {
