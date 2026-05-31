@@ -1,0 +1,32 @@
+name: AI Code Review Agent
+
+# 設定觸發條件：只有當有人發起 Pull Request，而且是針對 main 分支時才執行
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # 設定權限，讓 AI 機器人有權限在你的 PR 底下留言
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # 需要抓取完整的歷史紀錄來比對差異
+
+      # 使用開源社群廣泛使用的 AI Review Agent 套件
+      - name: Run OpenAI Code Reviewer
+        uses: anc95/ChatGPT-CodeReview@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 這是 GitHub 內建的，不用自己設
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # 呼叫我們剛剛存的保險箱
+          LANGUAGE: Chinese # 要求 AI 用中文回覆
+          # 給 AI 的人設 Prompt，直接命中你工作 JD 的要求！
+          PROMPT: "你是一個嚴格的資深 Node.js/K8s 後端工程師。請檢查傳入的 PR 程式碼，特別留意：1. 商業邏輯是否正確 2. 資料庫與物聯網連線的安全性與架構 (例如：是否應該將關注點分離) 3. 效能隱憂。"
